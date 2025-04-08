@@ -13,12 +13,13 @@ export const auth = defineAuth({
 
 import { Amplify } from "aws-amplify"
 
+
 Amplify.configure({
   Auth: {
     Cognito: {
-      userPoolId: "us-east-1_0SmI7CCIm",
-      userPoolClientId: "35blgjqu2spj4h5imomcmu9ids",
-      identityPoolId: "us-east-1:cc2aa96b-ab42-46b3-8ca4-dbdfcfffd31e",
+      userPoolId: "us-east-1_GbDEpwd4X",
+      userPoolClientId: "4seq105rqkge73reoarel51ech",
+      identityPoolId: "us-east-1:5bf79d75-6a3e-4e00-ae61-ae283f593664",
       loginWith: {
         email: true,
         phone: true,
