@@ -1,0 +1,14 @@
+{
+  "resourceName": "luisprojectS3",
+  "policyUUID": "73336505",
+  "bucketName": "luisnextjsstoragef296904cb58640fe8c2e7d87ad48fd",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}

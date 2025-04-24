@@ -1,51 +1,65 @@
-'use client';
-import React from "react";
-import { Amplify } from "aws-amplify";
-import { signOut } from "aws-amplify/auth";
+"use client";
 
-import { Button, withAuthenticator } from "@aws-amplify/ui-react";
-import {
-  createStorageBrowser,
-  createAmplifyAuthAdapter,
-  elementsDefault,
-} from "@aws-amplify/ui-react-storage/browser";
+import { Amplify } from 'aws-amplify';
+import { StorageBrowser } from '@aws-amplify/ui-react-storage';
 import "@aws-amplify/ui-react-storage/styles.css";
-import "@aws-amplify/ui-react-storage/storage-browser-styles.css";
+import config from '../amplify_outputs.json';
+import { useEffect, useState } from 'react';
+import { fetchUserAttributes } from '@aws-amplify/auth';
+import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
 
-import config from "../amplify_outputs.json";
+try {
+  Amplify.configure(config);
+} catch (err) {
+  console.error('Amplify configure error:', err);
+}
 
-Amplify.configure(config);
+// Custom component to handle authenticated content
+function AuthenticatedContent({ user, signOut }) {
+  const [userEmail, setUserEmail] = useState(null);
+  const [authError, setAuthError] = useState(null);
 
-function Example() {
-  const { StorageBrowser } = createStorageBrowser({
-    elements: elementsDefault,
-    config: createAmplifyAuthAdapter({
-      options: {
-        defaultPrefixes: [
-          "media-readwritedelete/",
-          "media-readonly/",
-          "shared-folder-readwrite/",
-          (identityId: string) => `protected-useronlyreadwritedelete/${identityId}/`,
-          (identityId: string) => `private-useronlyreadwritedelete/${identityId}/`,
-        ],
-      },
-    }),
-  });
+  useEffect(() => {
+    if (user) {
+      fetchUserAttributes()
+        .then((attributes) => {
+          console.log('User attributes:', attributes);
+          setUserEmail(attributes.email || user.username);
+        })
+        .catch((err) => {
+          console.log('Error fetching attributes:', err);
+          setUserEmail(user.username); // Fallback to username
+        });
+    }
+  }, [user]);
+
+  if (authError) {
+    return <div>Error: {authError}</div>;
+  }
 
   return (
-    <>
-      <Button
-        marginBlockEnd="xl"
-        size="small"
-        onClick={() => {
-          signOut();
-        }}
-      >
-        Sign Out
-      </Button>
-      <StorageBrowser />
-    </>
+    <div>
+      <p>Logged in as: {userEmail || 'User'}</p>
+      <button onClick={signOut}>Sign out</button>
+      <StorageBrowser defaultValue={{ path: "public/" }} />
+    </div>
   );
 }
 
-export default withAuthenticator(Example);
+export default function Home() {
+  return (
+    <Authenticator>
+      {({ signOut, user }) => (
+        <div>
+          <h1>Storage Browser</h1>
+          {user ? (
+            <AuthenticatedContent user={user} signOut={signOut} />
+          ) : (
+            <p>Please sign in to view files</p>
+          )}
+        </div>
+      )}
+    </Authenticator>
+  );
+}

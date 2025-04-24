@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-luisnextjsstorage-dev-0ae03-authRole",
+      "UnauthRoleArn": "arn:aws:iam::087243890715:role/amplify-luisnextjsstorage-dev-0ae03-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::087243890715:role/amplify-luisnextjsstorage-dev-0ae03-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-luisnextjsstorage-dev-0ae03-deployment",
+      "UnauthRoleName": "amplify-luisnextjsstorage-dev-0ae03-unauthRole",
+      "StackName": "amplify-luisnextjsstorage-dev-0ae03",
+      "StackId": "arn:aws:cloudformation:us-east-1:087243890715:stack/amplify-luisnextjsstorage-dev-0ae03/e38812e0-1a35-11f0-899d-0e5835081793",
+      "AmplifyAppId": "d20ijqi8rne7uf"
+    },
+    "categories": {
+      "auth": {
+        "luisnextjsstorage24462bca": {}
+      },
+      "storage": {
+        "luisprojectS3": {}
+      }
+    }
+  }
+}
