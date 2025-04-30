@@ -1,84 +1,65 @@
-'use client';
-import React, { useEffect } from 'react';
+"use client";
+
 import { Amplify } from 'aws-amplify';
-import { signOut, fetchUserAttributes } from 'aws-amplify/auth';
-
-
-
-import { Button, withAuthenticator } from '@aws-amplify/ui-react';
-import {
-  createStorageBrowser,
-  createAmplifyAuthAdapter,
-  elementsDefault,
-} from '@aws-amplify/ui-react-storage/browser';
-import '@aws-amplify/ui-react-storage/styles.css';
-import '@aws-amplify/ui-react-storage/storage-browser-styles.css';
-//import { S3 } from "aws-sdk";
-//import WrappedStorageBrowser from './WrappedStorageBrowser'; // Adjust the path if needed
-
-
+import { StorageBrowser } from '@aws-amplify/ui-react-storage';
+import "@aws-amplify/ui-react-storage/styles.css";
 import config from '../amplify_outputs.json';
+import { useEffect, useState } from 'react';
+import { fetchUserAttributes } from '@aws-amplify/auth';
+import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
 
-Amplify.configure(config);
+try {
+  Amplify.configure(config);
+} catch (err) {
+  console.error('Amplify configure error:', err);
+}
 
-// Create an S3 client (make sure to set the region and any required credentials)
-//const s3 = new S3({ region: config.auth.aws_region });
-
-function Example() {
-  
-
+// Custom component to handle authenticated content
+function AuthenticatedContent({ user, signOut }) {
+  const [userEmail, setUserEmail] = useState(null);
+  const [authError, setAuthError] = useState(null);
 
   useEffect(() => {
-
-    //To console log user attributes using fetchUserAttributes()
-    async function getAttributes() {
-      try {
-        const attributes = await fetchUserAttributes();
-        console.log("User Attributes:", attributes);
-      } catch (error) {
-        console.error("Error fetching user attributes", error);
-      }
+    if (user) {
+      fetchUserAttributes()
+        .then((attributes) => {
+          console.log('User attributes:', attributes);
+          setUserEmail(attributes.email || user.username);
+        })
+        .catch((err) => {
+          console.log('Error fetching attributes:', err);
+          setUserEmail(user.username); // Fallback to username
+        });
     }
-    getAttributes();
-  }, []);
+  }, [user]);
 
-
-  const { StorageBrowser } = createStorageBrowser({
-    elements: elementsDefault,
-    config: createAmplifyAuthAdapter({
-      options: {
-        defaultPrefixes: [
-          'ConversionFiles/',
-          'ConversionFileErrors/',
-          'InitialUpload/',
-          'InitialUploadErrors/',
-          'TSQLFiles/',
-          'DataValidation/',
-          // (identityId: string) => `private/${identityId}/`,
-          /*"media-readwritedelete/",
-          "media-readonly/",
-          "shared-folder-readwrite/",
-          (identityId: string) => `protected-useronlyreadwritedelete/${identityId}/`,
-          (identityId: string) => `private-useronlyreadwritedelete/${identityId}/`,*/
-        ],
-      },
-    }),
-  });
+  if (authError) {
+    return <div>Error: {authError}</div>;
+  }
 
   return (
-    <>
-      <Button
-        marginBlockEnd="xl"
-        size="small"
-        onClick={() => {
-          signOut();
-        }}
-      >
-        Sign Out
-      </Button>
-      <StorageBrowser />
-    </>
+    <div>
+      <p>Logged in as: {userEmail || 'User'}</p>
+      <button onClick={signOut}>Sign out</button>
+      <StorageBrowser defaultValue={{ path: "public/" }} />
+    </div>
   );
 }
 
-export default withAuthenticator(Example);
+export default function Home() {
+  return (
+    <Authenticator>
+      {({ signOut, user }) => (
+        <div>
+          <h1>Storage Browser</h1>
+          {user ? (
+            <AuthenticatedContent user={user} signOut={signOut} />
+          ) : (
+            <p>Please sign in to view files</p>
+          )}
+        </div>
+      )}
+    </Authenticator>
+  );
+}
